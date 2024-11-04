@@ -1,0 +1,38 @@
+#cloud-config
+users:
+  - name: foo
+    shell: /bin/bash
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
+    primary_group: foo
+    groups: sudo
+    lock_passwd: true
+    ssh_authorized_keys:
+      - "<PUBLIC_KEY_HERE>"
+
+groups:
+  - foo
+
+mounts:
+  - ["shared", "/mnt/shared", "9p", "trans=virtio,version=9p2000.L", "0", "0"]
+
+disable_root: true
+
+package_update: true
+
+packages:
+  - ca-certificates
+  - curl
+  - jq
+  - unzip
+  - zip
+
+runcmd:
+  # Set up firewall
+  - ufw default deny incoming
+  - ufw default allow outgoing
+  - ufw allow 22/tcp
+  - ufw enable
+  # Set up ssh
+  - sed -i -e '/^#PermitRootLogin/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_config
+  - sed -i -e '$aAllowUsers foo' /etc/ssh/sshd_config
+  - sudo systemctl restart ssh

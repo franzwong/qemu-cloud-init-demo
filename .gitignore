@@ -1,0 +1,12 @@
+.DS_Store
+
+id_ed25519*
+
+cloud_init/build
+
+noble_server.img*
+
+QEMU_EFI*
+
+shared/*
+!shared/.gitkeep
